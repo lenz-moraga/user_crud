@@ -1,11 +1,13 @@
 import httpClient from '../services/httpClient';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useAxiosFetch = () => {
   const url = '/users';
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  let navigate = useNavigate();
 
   const getUserList = async () => {
     try {
@@ -74,15 +76,48 @@ export const useAxiosFetch = () => {
     }
   };
 
-  const methodCall = (method, id = null, dataObject = {}) => {
+  const loginUser = async (email, password) => {
+    const loginURL = `${url}?filter=${email}`;
+    try {
+      const { data, status } = await httpClient({
+        method: 'get',
+        url: loginURL,
+      });
+
+      if (data.length > 0 && data[0].password === password) {
+        navigate('/user-list');
+        return { status };
+      } else if (data.length < 1 || data[0].password !== password) {
+        alert('user or password incorrect');
+      }
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const methodCall = (
+    method,
+    id = null,
+    dataObject = {},
+    email = '',
+    password = ''
+  ) => {
     const calls = {
       get: getUserList,
       post: createUser,
       update: updateUserInfo,
       delete: deleteUser,
+      login: loginUser,
     };
 
-    const methodVar = (calls[method] || calls['get'])(id, dataObject);
+    const methodVar = (calls[method] || calls['get'])(
+      id,
+      dataObject,
+      email,
+      password
+    );
 
     return methodVar;
   };
