@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAxiosFetch } from '../hooks/useAxiosFetch';
 
 const Loginview = () => {
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const { methodCall } = useAxiosFetch();
+  const navigate = useNavigate();
 
   const emailOnChangeHandler = (e) => setUserEmail(e.target.value);
   const password1OnChangeHandler = (e) => setUserPassword(e.target.value);
 
-  const loginHandler = (e) => {
+  const loginHandler = async (e) => {
     e.preventDefault();
     if (userEmail && userPassword) {
-      methodCall('login', userEmail, userPassword);
+      const { status } = await methodCall('login', userEmail, userPassword);
+
+      if (status === 200) {
+        navigate('user-list');
+      }
     } else {
       alert('please, submit some valid information');
     }
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    return () => {};
+  }, []);
 
   return (
     <>

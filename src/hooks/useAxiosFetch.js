@@ -1,13 +1,11 @@
 import httpClient from '../services/httpClient';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export const useAxiosFetch = () => {
   const url = '/users';
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  let navigate = useNavigate();
 
   const getUserList = async () => {
     try {
@@ -85,7 +83,11 @@ export const useAxiosFetch = () => {
       });
 
       if (data.length > 0 && data[0].password === password) {
-        navigate('/user-list');
+        //we are implementing this kind of validation due the api we are using
+        //the api url is https://61ead2ce7ec58900177cda6a.mockapi.io/users, in other cases,
+        //we will have to Encode to Base64 format or any other format, encrypt the information
+        //and send it to the backend and the condition to send the user to the home page will be
+        //the kind of response of the server
         return { status };
       } else if (data.length < 1 || data[0].password !== password) {
         alert('user or password incorrect');
