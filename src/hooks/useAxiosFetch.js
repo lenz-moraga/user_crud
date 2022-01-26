@@ -74,15 +74,52 @@ export const useAxiosFetch = () => {
     }
   };
 
-  const methodCall = (method, id = null, dataObject = {}) => {
+  const loginUser = async (email, password) => {
+    const loginURL = `${url}?filter=${email}`;
+    try {
+      const { data, status } = await httpClient({
+        method: 'get',
+        url: loginURL,
+      });
+
+      if (data.length > 0 && data[0].password === password) {
+        //we are implementing this kind of validation due the api we are using
+        //the api url is https://61ead2ce7ec58900177cda6a.mockapi.io/users, in other cases,
+        //we will have to Encode to Base64 format or any other format, encrypt the information
+        //and send it to the backend and the condition to send the user to the home page will be
+        //the kind of response of the server
+        return { status };
+      } else if (data.length < 1 || data[0].password !== password) {
+        alert('user or password incorrect');
+      }
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const methodCall = (
+    method,
+    id = null,
+    dataObject = {},
+    email = '',
+    password = ''
+  ) => {
     const calls = {
       get: getUserList,
       post: createUser,
       update: updateUserInfo,
       delete: deleteUser,
+      login: loginUser,
     };
 
-    const methodVar = (calls[method] || calls['get'])(id, dataObject);
+    const methodVar = (calls[method] || calls['get'])(
+      id,
+      dataObject,
+      email,
+      password
+    );
 
     return methodVar;
   };

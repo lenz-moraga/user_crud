@@ -18,7 +18,7 @@ const UserListView = () => {
     }
   }, [response, methodCall, APIData]);
 
-  const onUserStatusChangelHandler = (id) => (e) => {
+  const onUserStatusChangelHandler = (id) => async (e) => {
     const {
       target: { checked },
     } = e;
@@ -26,8 +26,11 @@ const UserListView = () => {
     const dataObject = {
       blocked: checked,
     };
+    const { status } = await methodCall('update', id, dataObject);
 
-    methodCall('update', id, dataObject).then(() => methodCall('get'));
+    if (status === 200) {
+      methodCall('get');
+    }
   };
 
   const onUsertoDeleteClickHandler = (id) => () => {
