@@ -77,23 +77,26 @@ export const useAxiosFetch = () => {
   const loginUser = async (email, password) => {
     const loginURL = `${url}?filter=${email}`;
     try {
-      const { data, status } = await httpClient({
+      const { data } = await httpClient({
         method: 'get',
         url: loginURL,
       });
 
+      let status;
+
+      //we are implementing this kind of validation due the api we are using the api url is https://61ead2ce7ec58900177cda6a.mockapi.io/users, in other cases, we will have to Encode to Base64 format or any other format, encrypt the information and send it to the backend and the condition to send the user to the home page will be the kind of response of the server
       if (data.length > 0 && data[0].password === password) {
-        //we are implementing this kind of validation due the api we are using
-        //the api url is https://61ead2ce7ec58900177cda6a.mockapi.io/users, in other cases,
-        //we will have to Encode to Base64 format or any other format, encrypt the information
-        //and send it to the backend and the condition to send the user to the home page will be
-        //the kind of response of the server
-        return { status };
+        status = 200;
       } else if (data.length < 1 || data[0].password !== password) {
+        status = 404;
         alert('user or password incorrect');
       }
+
+      //Due the return value of the api, we had to set manually the status value to verify whether the user is a valid record on the DB or not.
+      return { status };
     } catch (err) {
       setError(err);
+      return { err };
     } finally {
       setLoading(false);
     }

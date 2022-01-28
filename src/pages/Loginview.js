@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAxiosFetch } from '../hooks/useAxiosFetch';
 
 const Loginview = () => {
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
   const { methodCall } = useAxiosFetch();
   const navigate = useNavigate();
 
-  const emailOnChangeHandler = (e) => setUserEmail(e.target.value);
-  const password1OnChangeHandler = (e) => setUserPassword(e.target.value);
+  const [userDetails, setUserDetails] = useState({
+    userEmail: '',
+    userPassword: '',
+  });
+
+  const inputOnChangeHandler = (evt) => {
+    const inputHandler = {
+      exampleInputEmail1: () =>
+        setUserDetails({ ...userDetails, userEmail: evt.target.value }),
+      exampleInputPassword1: () =>
+        setUserDetails({ ...userDetails, userPassword: evt.target.value }),
+    };
+
+    return inputHandler[evt.target.id]();
+  };
 
   const loginHandler = async (e) => {
     e.preventDefault();
+    const { userEmail, userPassword } = userDetails;
+
     if (userEmail && userPassword) {
       const { status } = await methodCall('login', userEmail, userPassword);
 
       if (status === 200) {
-        navigate('user-list');
+        return navigate('/user-list');
       }
     } else {
       alert('please, submit some valid information');
     }
   };
-
-  useEffect(() => {
-    return () => {};
-  }, []);
 
   return (
     <>
@@ -40,7 +49,7 @@ const Loginview = () => {
             className="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
-            onChange={emailOnChangeHandler}
+            onChange={inputOnChangeHandler}
           />
           <div id="emailHelp" className="form-text">
             We'll never share your email with anyone else.
@@ -54,7 +63,7 @@ const Loginview = () => {
             type="password"
             className="form-control"
             id="exampleInputPassword1"
-            onChange={password1OnChangeHandler}
+            onChange={inputOnChangeHandler}
           />
         </div>
         <button
